@@ -1,10 +1,6 @@
 # To Do
 
-1. ❌ Restart gateway on port 8000 with latest code
-1. ❌ Re-run `./scripts/test_fal_t2i_curl.sh` on default port
-1. ❌ FAL  - finalise
 1. ❌ Replicate
-1. ❌ BFL
 1. ❌ Alibaba
 1. ❌ BytePlus
 1. ❌ DrawThings
@@ -12,7 +8,11 @@
 ---
 
 # Done
-
+- ✅ BFL
+- ✅ Restarted gateway on port 8000 with latest code
+- ✅ Re-ran test_fal_t2i_curl.sh on default port (succeeded)
+- ✅ FAL finalised
+- ✅ BFL backend implemented and verified
 - ✅ Scaffold UV Python project
 - ✅ Implement config + models
 - ✅ Build FAL adapter pipeline

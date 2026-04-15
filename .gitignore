@@ -8,3 +8,4 @@ htmlcov/
 .env
 logs/
 test_image_output/
+_PLAY/

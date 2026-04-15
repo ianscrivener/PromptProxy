@@ -18,7 +18,7 @@ class I2IInput(BaseModel):
 
 
 class CanonicalGenerateRequest(BaseModel):
-    backend: Literal["fal"]
+    backend: Literal["fal", "bfl"]
     model_ref: str = Field(min_length=1)
     prompt: str = Field(min_length=1)
     negative_prompt: str | None = None
@@ -69,7 +69,7 @@ class JobRecord(BaseModel):
     job_id: str
     proxy_timestamp: datetime
     gateway_version: str
-    backend: Literal["fal"]
+    backend: Literal["fal", "bfl"]
     model_ref: str
     status: Literal["pending", "succeeded", "failed"]
     request: CanonicalGenerateRequest

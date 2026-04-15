@@ -1,0 +1,13 @@
+apps:
+  - name: promptproxy
+    cwd: /Users/ianscrivener/zCode_26-4/PromptProxy
+    script: /bin/zsh
+    args:
+      - -lc
+      - source .venv/bin/activate && uv run uvicorn gateway.main:app --host 127.0.0.1 --port 9999
+    autorestart: true
+    watch: false
+    max_restarts: 20
+    restart_delay: 1000
+    env:
+      PYTHONUNBUFFERED: "1"

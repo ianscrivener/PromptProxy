@@ -20,6 +20,17 @@ class ApiSuccessAdapter(BackendAdapter):
         return CanonicalResult(images=[CanonicalImage(url="https://cdn.example.com/api.png")], seed_used=55)
 
 
+class ApiBflAdapter(BackendAdapter):
+    name = "bfl"
+    display_name = "BFL"
+
+    async def health_check(self) -> bool:
+        return False
+
+    async def generate(self, _: CanonicalGenerateRequest) -> CanonicalResult:
+        return CanonicalResult(images=[])
+
+
 def _write_runtime_files(tmp_path: Path) -> tuple[Path, Path]:
     config_path = tmp_path / "config.yaml"
     config_path.write_text(
@@ -55,6 +66,7 @@ async def test_generate_endpoint_full_flow(tmp_path):
         config_path=config_path,
         env_file=env_path,
         fal_adapter=ApiSuccessAdapter(),
+        bfl_adapter=ApiBflAdapter(),
         image_client=image_client,
     )
     api_client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver")
@@ -94,7 +106,12 @@ async def test_generate_endpoint_full_flow(tmp_path):
 @pytest.mark.asyncio
 async def test_get_unknown_job_returns_404(tmp_path):
     config_path, env_path = _write_runtime_files(tmp_path)
-    app = create_app(config_path=config_path, env_file=env_path, fal_adapter=ApiSuccessAdapter())
+    app = create_app(
+        config_path=config_path,
+        env_file=env_path,
+        fal_adapter=ApiSuccessAdapter(),
+        bfl_adapter=ApiBflAdapter(),
+    )
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver") as api_client:
         response = await api_client.get("/v1/jobs/not-found")
         assert response.status_code == 404
@@ -103,10 +120,16 @@ async def test_get_unknown_job_returns_404(tmp_path):
 @pytest.mark.asyncio
 async def test_backends_endpoint_reports_fal(tmp_path):
     config_path, env_path = _write_runtime_files(tmp_path)
-    app = create_app(config_path=config_path, env_file=env_path, fal_adapter=ApiSuccessAdapter())
+    app = create_app(
+        config_path=config_path,
+        env_file=env_path,
+        fal_adapter=ApiSuccessAdapter(),
+        bfl_adapter=ApiBflAdapter(),
+    )
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver") as api_client:
         response = await api_client.get("/v1/backends")
         assert response.status_code == 200
         payload = response.json()
-        assert payload["backends"][0]["name"] == "fal"
-        assert payload["backends"][0]["available"] is True
+        backend_map = {item["name"]: item for item in payload["backends"]}
+        assert backend_map["fal"]["available"] is True
+        assert backend_map["bfl"]["available"] is False

@@ -9,4 +9,6 @@ sidecar_enabled: true
 image_output_path: test_image_output
 static_image_base_url: http://127.0.0.1:8000/images
 fal_api_base_url: https://queue.fal.run
+bfl_api_base_url: https://api.bfl.ai/v1
+bfl_poll_interval_seconds: 0.5
 request_timeout_seconds: 120

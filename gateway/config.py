@@ -20,6 +20,8 @@ class AppConfig(BaseModel):
     image_output_path: str = "test_image_output"
     static_image_base_url: str = "http://127.0.0.1:8000/images"
     fal_api_base_url: str = "https://queue.fal.run"
+    bfl_api_base_url: str = "https://api.bfl.ai/v1"
+    bfl_poll_interval_seconds: float = 0.5
     request_timeout_seconds: float = 120.0
 
 
@@ -27,6 +29,7 @@ class Secrets(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore", populate_by_name=True)
 
     fal_key: str | None = Field(default=None, alias="FAL_KEY")
+    bfl_key: str | None = Field(default=None, alias="BFL_API_KEY")
     database_url: str | None = Field(default=None, alias="DATABASE_URL")
 
 

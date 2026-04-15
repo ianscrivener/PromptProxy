@@ -3,6 +3,7 @@ from gateway.config import load_runtime_config, resolve_path
 
 def test_load_runtime_config_reads_yaml_and_env(tmp_path, monkeypatch):
     monkeypatch.delenv("FAL_KEY", raising=False)
+    monkeypatch.delenv("BFL_API_KEY", raising=False)
 
     config_path = tmp_path / "config.yaml"
     config_path.write_text(
@@ -19,13 +20,14 @@ def test_load_runtime_config_reads_yaml_and_env(tmp_path, monkeypatch):
                 "image_output_path: test_image_output",
                 "static_image_base_url: http://127.0.0.1:9001/images",
                 "fal_api_base_url: https://queue.fal.run",
+                "bfl_api_base_url: https://api.bfl.ai/v1",
                 "request_timeout_seconds: 45",
             ]
         ),
         encoding="utf-8",
     )
     env_path = tmp_path / ".env"
-    env_path.write_text("FAL_KEY=test-fal-key\n", encoding="utf-8")
+    env_path.write_text("FAL_KEY=test-fal-key\nBFL_API_KEY=test-bfl-key\n", encoding="utf-8")
 
     runtime = load_runtime_config(config_path=config_path, env_file=env_path)
 
@@ -35,4 +37,6 @@ def test_load_runtime_config_reads_yaml_and_env(tmp_path, monkeypatch):
     assert runtime.app.log_backends == ["jsonl"]
     assert runtime.app.log_exclude_fields == ["backend_params"]
     assert runtime.secrets.fal_key == "test-fal-key"
+    assert runtime.secrets.bfl_key == "test-bfl-key"
+    assert runtime.app.bfl_api_base_url == "https://api.bfl.ai/v1"
     assert resolve_path(runtime.app.jsonl_path, runtime.project_root) == (tmp_path / "logs/custom.jsonl").resolve()

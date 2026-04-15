@@ -17,6 +17,16 @@ def test_request_accepts_aspect_ratio():
     assert request.height is None
 
 
+def test_request_accepts_bfl_backend():
+    request = CanonicalGenerateRequest(
+        backend="bfl",
+        model_ref="flux-2-pro",
+        prompt="test",
+    )
+
+    assert request.backend == "bfl"
+
+
 def test_request_rejects_partial_dimensions():
     with pytest.raises(ValidationError):
         CanonicalGenerateRequest(

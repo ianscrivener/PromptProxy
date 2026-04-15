@@ -11,6 +11,7 @@ from gateway.config import load_runtime_config, resolve_path
 from gateway.job_service import JobService
 from gateway.models import CanonicalGenerateRequest, JobRecord
 from gateway.plugins.base import BackendAdapter
+from gateway.plugins.bfl import BflAdapter
 from gateway.plugins.fal import FalAdapter
 from gateway.registry import AdapterRegistry
 from gateway.sinks.jsonl import JsonlSink
@@ -20,17 +21,24 @@ def create_app(
     config_path: str | Path | None = None,
     env_file: str | Path | None = ".env",
     fal_adapter: BackendAdapter | None = None,
+    bfl_adapter: BackendAdapter | None = None,
     image_client: httpx.AsyncClient | None = None,
 ) -> FastAPI:
     runtime = load_runtime_config(config_path=config_path, env_file=env_file)
     app_config = runtime.app
 
-    adapter = fal_adapter or FalAdapter(
+    fal = fal_adapter or FalAdapter(
         api_key=runtime.secrets.fal_key,
         api_base_url=app_config.fal_api_base_url,
         timeout_seconds=app_config.request_timeout_seconds,
     )
-    registry = AdapterRegistry([adapter])
+    bfl = bfl_adapter or BflAdapter(
+        api_key=runtime.secrets.bfl_key,
+        api_base_url=app_config.bfl_api_base_url,
+        timeout_seconds=app_config.request_timeout_seconds,
+        poll_interval_seconds=app_config.bfl_poll_interval_seconds,
+    )
+    registry = AdapterRegistry([fal, bfl])
     jsonl_path = resolve_path(app_config.jsonl_path, runtime.project_root)
     sink = JsonlSink(jsonl_path)
     service = JobService(
