@@ -20,8 +20,17 @@ cp .env.example .env
 Set `FAL_KEY` and/or `BFL_API_KEY` in `.env`, then run:
 
 ```bash
+pm2 start ecosystem.config.yml --only promptproxy
+pm2 save
+```
+
+Gateway is managed by PM2 on `127.0.0.1:9999`.
+
+If you need a one-off manual run (without PM2):
+
+```bash
 source .venv/bin/activate
-uv run uvicorn gateway.main:app --host 127.0.0.1 --port 8000
+uv run uvicorn gateway.main:app --host 127.0.0.1 --port 9999
 ```
 
 ## Tests
@@ -66,4 +75,11 @@ During development, restart via PM2 after changes:
 
 ```bash
 pm2 restart promptproxy
+```
+
+Useful checks:
+
+```bash
+pm2 list
+curl -sS http://127.0.0.1:9999/v1/backends
 ```

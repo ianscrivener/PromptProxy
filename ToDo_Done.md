@@ -9,7 +9,8 @@
 
 # Done
 - ✅ BFL
-- ✅ Restarted gateway on port 8000 with latest code
+- ✅ PM2 ecosystem workflow finalised for `promptproxy` on port 9999 (`pm2 start ecosystem.config.yml --only promptproxy`, `pm2 save`, `pm2 restart promptproxy`)
+- ✅ Restarted gateway on port 9999 with latest code
 - ✅ Re-ran test_fal_t2i_curl.sh on default port (succeeded)
 - ✅ FAL finalised
 - ✅ BFL backend implemented and verified
