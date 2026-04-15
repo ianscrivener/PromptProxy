@@ -1,0 +1,12 @@
+gateway_host: 127.0.0.1
+gateway_port: 8000
+gateway_version: 0.1.0
+log_backends:
+  - jsonl
+log_exclude_fields: []
+jsonl_path: logs/gen-gateway.jsonl
+sidecar_enabled: true
+image_output_path: test_image_output
+static_image_base_url: http://127.0.0.1:8000/images
+fal_api_base_url: https://queue.fal.run
+request_timeout_seconds: 120
