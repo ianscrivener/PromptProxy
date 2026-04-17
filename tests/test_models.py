@@ -27,6 +27,26 @@ def test_request_accepts_bfl_backend():
     assert request.backend == "bfl"
 
 
+def test_request_accepts_drawthings_backend():
+    request = CanonicalGenerateRequest(
+        backend="drawthings",
+        model_ref="jibmix_zit_v1.0_fp16_f16.ckpt",
+        prompt="test",
+    )
+
+    assert request.backend == "drawthings"
+
+
+def test_request_accepts_byteplus_backend():
+    request = CanonicalGenerateRequest(
+        backend="byteplus",
+        model_ref="seedream-5-0-t2i-250624",
+        prompt="test",
+    )
+
+    assert request.backend == "byteplus"
+
+
 def test_request_rejects_partial_dimensions():
     with pytest.raises(ValidationError):
         CanonicalGenerateRequest(

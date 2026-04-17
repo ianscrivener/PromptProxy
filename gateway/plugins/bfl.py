@@ -14,6 +14,13 @@ class BflAdapter(BackendAdapter):
     name = "bfl"
     display_name = "BFL"
     supports_i2i = True
+    supported_models = (
+        "flux-2-flex",
+        "flux-2-pro",
+        "flux-2-max",
+        "flux-2-klein-4b",
+        "flux-2-klein-9b",
+    )
 
     def __init__(
         self,

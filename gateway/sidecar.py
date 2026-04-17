@@ -24,6 +24,7 @@ async def write_image_sidecars(job: JobRecord) -> list[Path]:
             "image_file": image_path.name,
             "image_url": image.url,
             "image_original_url": image.original_url,
+            "upstream_request": job.result.raw_request,
             "job": job_payload,
         }
         sidecar_text = json.dumps(sidecar_payload, indent=2, ensure_ascii=True)

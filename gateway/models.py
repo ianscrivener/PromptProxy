@@ -18,7 +18,7 @@ class I2IInput(BaseModel):
 
 
 class CanonicalGenerateRequest(BaseModel):
-    backend: Literal["fal", "bfl"]
+    backend: Literal["fal", "bfl", "drawthings", "byteplus"]
     model_ref: str = Field(min_length=1)
     prompt: str = Field(min_length=1)
     negative_prompt: str | None = None
@@ -62,6 +62,7 @@ class CanonicalResult(BaseModel):
     images: list[CanonicalImage] = Field(default_factory=list)
     seed_used: int | None = None
     duration_ms: int | None = None
+    raw_request: dict[str, Any] | None = None
     raw_response: dict[str, Any] | None = None
 
 
@@ -69,7 +70,7 @@ class JobRecord(BaseModel):
     job_id: str
     proxy_timestamp: datetime
     gateway_version: str
-    backend: Literal["fal", "bfl"]
+    backend: Literal["fal", "bfl", "drawthings", "byteplus"]
     model_ref: str
     status: Literal["pending", "succeeded", "failed"]
     request: CanonicalGenerateRequest

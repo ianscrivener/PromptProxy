@@ -2,12 +2,18 @@
 
 1. ❌ Replicate
 1. ❌ Alibaba
-1. ❌ BytePlus
-1. ❌ DrawThings
 1. ❌ Gemini Nano Banana
+
+---
+
+# In Progress
+
+1. DrawThings
+
 ---
 
 # Done
+- ✅ BytePlus connector implemented and wired into API + tests
 - ✅ BFL
 - ✅ PM2 ecosystem workflow finalised for `promptproxy` on port 9999 (`pm2 start ecosystem.config.yml --only promptproxy`, `pm2 save`, `pm2 restart promptproxy`)
 - ✅ Restarted gateway on port 9999 with latest code

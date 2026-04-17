@@ -86,6 +86,7 @@ async def test_job_service_success_persists_image_and_sidecar(tmp_path):
     sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
     assert sidecar["job"]["job_id"] == job.job_id
     assert sidecar["image_file"] == local_path.name
+    assert sidecar["upstream_request"] is None
 
     log_lines = (tmp_path / "logs" / "events.jsonl").read_text(encoding="utf-8").splitlines()
     assert len(log_lines) == 2

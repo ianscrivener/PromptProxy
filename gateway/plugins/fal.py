@@ -15,6 +15,10 @@ class FalAdapter(BackendAdapter):
     display_name = "FAL"
     supports_i2i = True
     supports_loras = True
+    supported_models = (
+        "fal-ai/flux/dev",
+        "fal-ai/flux/schnell",
+    )
 
     def __init__(
         self,

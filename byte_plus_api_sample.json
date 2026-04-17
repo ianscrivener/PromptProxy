@@ -1,0 +1,10 @@
+{
+  "query": {},
+  "body": {
+    "prompt": "Fish-eye lens, the head of a cat, showcasing the distortion effect on the cat's facial features due to the shooting method.",
+    "response_format": "url",
+    "watermark": false,
+    "model": "ep-20260123162415-2wr9p",
+    "size": "1664x2496"
+  }
+}

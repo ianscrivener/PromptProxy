@@ -11,4 +11,17 @@ static_image_base_url: http://127.0.0.1:8000/images
 fal_api_base_url: https://queue.fal.run
 bfl_api_base_url: https://api.bfl.ai/v1
 bfl_poll_interval_seconds: 0.5
+byteplus_api_base_url: https://ark.ap-southeast.bytepluses.com/api/v3
+drawthings_enabled: true
+drawthings_address: localhost:7859
+drawthings_use_tls: true
+drawthings_use_compression: false
+drawthings_health_check_timeout_seconds: 2.0
 request_timeout_seconds: 120
+
+
+bytes_plus_models: 
+  - seedream_40_nsfw: ep-20260124175405-5mh2b
+  - seedream_45_nsfw: ep-20260123162415-2wr9p
+
+

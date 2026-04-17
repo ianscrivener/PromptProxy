@@ -14,6 +14,7 @@ class BackendAdapter(ABC):
     display_name: str
     supports_i2i: bool = False
     supports_loras: bool = False
+    supported_models: tuple[str, ...] = ()
 
     @abstractmethod
     async def health_check(self) -> bool:

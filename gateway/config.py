@@ -5,23 +5,29 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AppConfig(BaseModel):
     gateway_host: str = "127.0.0.1"
-    gateway_port: int = 8000
+    gateway_port: int = 9999
     gateway_version: str = "0.1.0"
     log_backends: list[str] = Field(default_factory=lambda: ["jsonl"])
     log_exclude_fields: list[str] = Field(default_factory=list)
     jsonl_path: str = "logs/gen-gateway.jsonl"
     sidecar_enabled: bool = True
     image_output_path: str = "test_image_output"
-    static_image_base_url: str = "http://127.0.0.1:8000/images"
+    static_image_base_url: str = "http://127.0.0.1:9999/images"
     fal_api_base_url: str = "https://queue.fal.run"
     bfl_api_base_url: str = "https://api.bfl.ai/v1"
     bfl_poll_interval_seconds: float = 0.5
+    byteplus_api_base_url: str = "https://ark.ap-southeast.bytepluses.com/api/v3"
+    drawthings_enabled: bool = True
+    drawthings_address: str = "localhost:7859"
+    drawthings_use_tls: bool = True
+    drawthings_use_compression: bool = False
+    drawthings_health_check_timeout_seconds: float = 2.0
     request_timeout_seconds: float = 120.0
 
 
@@ -30,6 +36,10 @@ class Secrets(BaseSettings):
 
     fal_key: str | None = Field(default=None, alias="FAL_KEY")
     bfl_key: str | None = Field(default=None, alias="BFL_API_KEY")
+    byteplus_ark_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("BYTEPLUS_ARK_API_KEY", "ARK_API_KEY"),
+    )
     database_url: str | None = Field(default=None, alias="DATABASE_URL")
 
 

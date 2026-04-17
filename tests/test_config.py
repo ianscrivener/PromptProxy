@@ -4,6 +4,8 @@ from gateway.config import load_runtime_config, resolve_path
 def test_load_runtime_config_reads_yaml_and_env(tmp_path, monkeypatch):
     monkeypatch.delenv("FAL_KEY", raising=False)
     monkeypatch.delenv("BFL_API_KEY", raising=False)
+    monkeypatch.delenv("BYTEPLUS_ARK_API_KEY", raising=False)
+    monkeypatch.delenv("ARK_API_KEY", raising=False)
 
     config_path = tmp_path / "config.yaml"
     config_path.write_text(
@@ -21,13 +23,17 @@ def test_load_runtime_config_reads_yaml_and_env(tmp_path, monkeypatch):
                 "static_image_base_url: http://127.0.0.1:9001/images",
                 "fal_api_base_url: https://queue.fal.run",
                 "bfl_api_base_url: https://api.bfl.ai/v1",
+                "byteplus_api_base_url: https://ark.ap-southeast.bytepluses.com/api/v3",
                 "request_timeout_seconds: 45",
             ]
         ),
         encoding="utf-8",
     )
     env_path = tmp_path / ".env"
-    env_path.write_text("FAL_KEY=test-fal-key\nBFL_API_KEY=test-bfl-key\n", encoding="utf-8")
+    env_path.write_text(
+        "FAL_KEY=test-fal-key\nBFL_API_KEY=test-bfl-key\nBYTEPLUS_ARK_API_KEY=test-byteplus-key\n",
+        encoding="utf-8",
+    )
 
     runtime = load_runtime_config(config_path=config_path, env_file=env_path)
 
@@ -38,5 +44,7 @@ def test_load_runtime_config_reads_yaml_and_env(tmp_path, monkeypatch):
     assert runtime.app.log_exclude_fields == ["backend_params"]
     assert runtime.secrets.fal_key == "test-fal-key"
     assert runtime.secrets.bfl_key == "test-bfl-key"
+    assert runtime.secrets.byteplus_ark_api_key == "test-byteplus-key"
     assert runtime.app.bfl_api_base_url == "https://api.bfl.ai/v1"
+    assert runtime.app.byteplus_api_base_url == "https://ark.ap-southeast.bytepluses.com/api/v3"
     assert resolve_path(runtime.app.jsonl_path, runtime.project_root) == (tmp_path / "logs/custom.jsonl").resolve()
