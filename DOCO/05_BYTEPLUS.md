@@ -18,6 +18,21 @@ Two image product families:
 
 Rate limit: 500 images per minute (IPM) for Seedream 4.0+.
 
+### PromptProxy integration notes
+
+PromptProxy uses a size-only BytePlus request path:
+
+- Requests are sent directly to `/api/v3/images/generations` via HTTP JSON.
+- PromptProxy uses `backend_params.size` and does not build upstream BytePlus payloads from request `width` or `height`.
+- For Seedream model series (`seedream50`, `seedream45`, `seedream40`), allowed size pairs are loaded from `seedream-allowed-sizes.json`.
+- If a custom size is not an exact allowed pair, PromptProxy snaps to the nearest allowed size while preserving orientation.
+
+BytePlus smoke test script notes:
+
+- Script: `scripts/test_byteplus_t2i_curl.sh`
+- Prompt env var: `BYTEPLUS_PROMPT` (not `PROMPT`)
+- Common overrides: `MODEL_REF`, `MODEL_SERIES`, `SIZE`, `NUM_IMAGES`, `WATERMARK`, `TIMEOUT_SECONDS`
+
 ---
 
 ## Text-to-Image (T2I)
@@ -35,7 +50,7 @@ POST https://ark.ap-southeast.bytepluses.com/api/v3/images/generations
 | `model` | string | **required** | Model ID (see table below) |
 | `prompt` | string | **required** | Text description of the image |
 | `image` | string | null | URL or base64 of reference image (for multi-image modes) |
-| `size` | string | `"2K"` | `"1K"`, `"2K"`, `"4K"` or `"adaptive"` |
+| `size` | string | `"2K"` | `"1K"`, `"2K"`, `"4K"`, `"adaptive"`, or custom `"<width>x<height>"` |
 | `n` | integer | 1 | Number of images to generate |
 | `response_format` | string | `"url"` | `"url"` or `"b64_json"` |
 | `seed` | integer | null | Fixed seed for reproducibility |
@@ -133,7 +148,7 @@ POST https://ark.ap-southeast.bytepluses.com/api/v3/images/generations
 | `model` | string | **required** | SeedEdit model ID |
 | `prompt` | string | **required** | Edit instruction |
 | `image` | string | **required** | URL or base64 of source image |
-| `size` | string | `"adaptive"` | `"adaptive"` preserves input dimensions; or explicit `"1K"`, `"2K"` |
+| `size` | string | `"adaptive"` | `"adaptive"` preserves input dimensions; supports `"1K"`, `"2K"`, `"4K"`, and custom `"<width>x<height>"` |
 | `seed` | integer | null | Reproducibility |
 | `guidance_scale` | float | 5.5 | How closely to follow the edit prompt |
 | `watermark` | boolean | true | Add watermark |
@@ -233,6 +248,7 @@ Up to **10 reference images** supported (Seedream 4.0+).
 | `"2K"` | ~1920×1080 to 2048×2048 |
 | `"4K"` | ~3840×2160 to 4096×4096 |
 | `"adaptive"` | Matches input image dimensions (I2I) |
+| `"<width>x<height>"` | Explicit custom size (for example `1664x2496`) |
 
 Total output pixel range: 1280×720 to 4096×4096.
 
@@ -254,6 +270,8 @@ Total output pixel range: 1280×720 to 4096×4096.
 - API is OpenAI-compatible — standard OpenAI Python/JS SDK works with `base_url` override
 - `sequential_image_generation: "enabled"` creates a thematically consistent image set (like a storyboard)
 - `size: "adaptive"` for SeedEdit preserves the input image's original aspect ratio and resolution
+- In PromptProxy, prefer `backend_params.size` and optional `backend_params.model_series` for deterministic Seedream size normalization
+- In PromptProxy scripts, use `BYTEPLUS_PROMPT`; avoid using shell `PROMPT` as an input variable
 - `guidance_scale` in SeedEdit controls edit strength — lower = more conservative changes
 - Rate limit is 500 images/minute; no charge for failed generations
 - `eu-west-1` region supports `seed-2-0` and `seedream-5-0-lite` only; all models in `ap-southeast-1`

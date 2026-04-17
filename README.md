@@ -142,6 +142,7 @@ Examples:
 - `1100x1000` with `seedream40` resolves to `1024x1024`.
 
 `scripts/test_byteplus_t2i_curl.sh` supports overriding `MODEL_REF`, `MODEL_SERIES`, `SIZE`, and `BYTEPLUS_PROMPT` for quick validation.
+Use `BYTEPLUS_PROMPT` for prompt overrides; do not use `PROMPT` because shells may populate it with prompt-rendering content.
 
 ## API Docs
 

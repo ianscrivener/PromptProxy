@@ -42,7 +42,7 @@ Also: MLX-VLM, ComfyUI, MFlux
 |-----------|-----|-----------|-----|---------|----------|-------------|------------|--------|
 | `prompt` | ✅ | `input.prompt` | ✅ | `text` (in content) | ✅ | ✅ | in `messages` | in `contents` |
 | `negative_prompt` | ✅ | model-dependent | ❌ | ❌ | model-dep | ✅ | model-dep | ❌ |
-| `width/height` | ✅ or `image_size` | model-dependent | ✅ | `size` enum | `size` | ✅ | `image_config.image_size` | aspect_ratio |
+| `image size` | ✅ or `image_size` | model-dependent | ✅ | `size` enum | `size` | ✅ | `image_config.image_size` | aspect_ratio |
 | `num_inference_steps` | ✅ | model-dependent | ✅ (some) | ❌ | model-dep | `steps` | model-dep | ❌ |
 | `guidance_scale` | ✅ | model-dependent | ❌ | ❌ | `guidance_scale` | `cfg_scale` | model-dep | ❌ |
 | `seed` | ✅ | model-dependent | ✅ | ❌ | ✅ | ✅ | model-dep | ❌ |
