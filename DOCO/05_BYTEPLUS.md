@@ -33,6 +33,14 @@ BytePlus smoke test script notes:
 - Prompt env var: `BYTEPLUS_PROMPT` (not `PROMPT`)
 - Common overrides: `MODEL_REF`, `MODEL_SERIES`, `SIZE`, `NUM_IMAGES`, `WATERMARK`, `TIMEOUT_SECONDS`
 
+BytePlus I2I smoke test script notes:
+
+- Script: `scripts/test_byteplus_i2i_curl.sh`
+- Default source image: `image_ref.png` (override via `IMAGE_PATH`)
+- Default prompt source: `BYTEPLUS_PROMPT` (falls back to the same default prompt text used by the T2I script)
+- Common overrides: `MODEL_REF`, `SIZE`, `MODEL_SERIES`, `NUM_IMAGES`, `SEED`, `WATERMARK`, `STRENGTH`, `TIMEOUT_SECONDS`
+- Payload behavior: local file is converted to `data:image/<format>;base64,...` before gateway submission
+
 ---
 
 ## Text-to-Image (T2I)
@@ -265,6 +273,27 @@ curl -X POST \
     "watermark": false
   }'
 ```
+
+### I2I Request via PromptProxy test script
+
+```bash
+scripts/test_byteplus_i2i_curl.sh
+```
+
+With overrides:
+
+```bash
+IMAGE_PATH=./image_ref.png \
+MODEL_REF=ep-20260123162415-2wr9p \
+SIZE=2048x2048 \
+BYTEPLUS_PROMPT="Make the background a tropical beach" \
+scripts/test_byteplus_i2i_curl.sh
+```
+
+Practical note for PromptProxy smoke tests:
+
+- Some BytePlus endpoints reject `size: "adaptive"` for specific I2I routes and enforce a minimum pixel count.
+- The current script default `SIZE=2048x2048` is chosen to satisfy those stricter endpoint validations.
 
 ### I2I Request (Python SDK)
 

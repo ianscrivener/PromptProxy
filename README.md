@@ -123,6 +123,26 @@ Start the gateway, then run:
 scripts/test_byteplus_t2i_curl.sh
 ```
 
+## Quick BytePlus I2I curl test
+
+Start the gateway, ensure `image_ref.png` exists in the project root (or set `IMAGE_PATH`), then run:
+
+```bash
+scripts/test_byteplus_i2i_curl.sh
+```
+
+Optional overrides:
+
+```bash
+IMAGE_PATH=./image_ref.png \
+MODEL_REF=ep-20260123162415-2wr9p \
+SIZE=2048x2048 \
+BYTEPLUS_PROMPT="your edit prompt" \
+scripts/test_byteplus_i2i_curl.sh
+```
+
+`scripts/test_byteplus_i2i_curl.sh` defaults to the same prompt text as the BytePlus T2I script and uses a single source image (`batchCount=1`, `batchSize=1` behavior).
+
 ## BytePlus Behavior in PromptProxy
 
 PromptProxy calls the BytePlus image endpoint directly (`/api/v3/images/generations`) using JSON over HTTP.
