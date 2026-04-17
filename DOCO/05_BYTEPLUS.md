@@ -48,7 +48,7 @@ POST https://ark.ap-southeast.bytepluses.com/api/v3/images/generations
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `model` | string | **required** | Model ID (see table below) |
-| `prompt` | string | **required** | Text description of the image |
+| `prompt` | string | **required** | Text description of the image (recommended under 600 English words) |
 | `image` | string | null | URL or base64 of reference image (for multi-image modes) |
 | `size` | string | `"2K"` | `"1K"`, `"2K"`, `"4K"`, `"adaptive"`, or custom `"<width>x<height>"` |
 | `n` | integer | 1 | Number of images to generate |
@@ -56,8 +56,38 @@ POST https://ark.ap-southeast.bytepluses.com/api/v3/images/generations
 | `seed` | integer | null | Fixed seed for reproducibility |
 | `watermark` | boolean | false | Add ByteDance watermark |
 | `stream` | boolean | false | Streaming response |
-| `sequential_image_generation` | string | `"disabled"` | `"enabled"` to generate a consistent image set |
+| `sequential_image_generation` | string | `"disabled"` | Use `"auto"` for related image batches; use `"disabled"` for single-image generation |
 | `guidance_scale` | float | model default | Prompt adherence (SeedEdit: 5.5 typical) |
+
+### Sequential and Single Image Modes (Seedream)
+
+The following mode guidance applies to:
+
+- `seedream-5-0-litenew`
+- `seedream-4-5`
+- `seedream-4-0`
+
+Set `sequential_image_generation` as follows:
+
+- `"auto"`: generate related images in sequence (batch behavior)
+- `"disabled"`: generate a single image
+
+Mode matrix:
+
+| Scenario | Required Inputs | Output Limit | `sequential_image_generation` |
+|----------|------------------|--------------|-------------------------------|
+| Generate a batch of related images from multiple reference images + prompt | `image` array with 2-14 references + `prompt` | Input refs + output images must be `<= 15` | `"auto"` |
+| Generate a batch of related images from a single reference image + prompt | `image` (single) + `prompt` | Up to 14 output images | `"auto"` |
+| Generate a batch of related images from text only | `prompt` | Up to 15 output images | `"auto"` |
+| Generate a single image from multiple reference images + prompt | `image` array with 2-14 references + `prompt` | Exactly 1 output image | `"disabled"` |
+| Generate a single image from a single reference image + prompt | `image` (single) + `prompt` | Exactly 1 output image | `"disabled"` |
+| Generate a single image from text only | `prompt` | Exactly 1 output image | `"disabled"` |
+
+Practical request fields:
+
+- Set `n` to your desired output count.
+- For related-image batches, use `sequential_image_generation: "auto"`.
+- For single-image requests, set `n: 1` and `sequential_image_generation: "disabled"`.
 
 ### T2I Request (curl)
 
@@ -73,6 +103,23 @@ curl -X POST \
     "n": 1,
     "response_format": "url",
     "watermark": false
+  }'
+```
+
+### T2I Request (Related batch from text prompt)
+
+```bash
+curl -X POST \
+  https://ark.ap-southeast.bytepluses.com/api/v3/images/generations \
+  -H "Authorization: Bearer $ARK_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "seedream-4-5",
+    "prompt": "A character turnaround sheet in consistent style",
+    "n": 8,
+    "sequential_image_generation": "auto",
+    "size": "2K",
+    "response_format": "url"
   }'
 ```
 
@@ -114,6 +161,24 @@ response = client.images.generate(
 print(response.data[0].url)
 ```
 
+### T2I Request (Single image from multiple references + prompt)
+
+```python
+response = client.images.generate(
+  model="seedream-4-0",
+  prompt="Blend the subject style from all references into one hero image",
+  image=[
+    "https://example.com/ref-1.jpg",
+    "https://example.com/ref-2.jpg",
+    "https://example.com/ref-3.jpg"
+  ],
+  n=1,
+  sequential_image_generation="disabled",
+  size="2K"
+)
+print(response.data[0].url)
+```
+
 ### T2I Response Schema
 
 ```json
@@ -146,13 +211,41 @@ POST https://ark.ap-southeast.bytepluses.com/api/v3/images/generations
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `model` | string | **required** | SeedEdit model ID |
-| `prompt` | string | **required** | Edit instruction |
-| `image` | string | **required** | URL or base64 of source image |
+| `prompt` | string | **required** | Edit instruction (recommended under 600 English words) |
+| `image` | string or string[] | **required** | URL/base64 source image; `seedream-5-0-lite`, `seedream-4-5`, and `seedream-4-0` support single or multiple images |
 | `size` | string | `"adaptive"` | `"adaptive"` preserves input dimensions; supports `"1K"`, `"2K"`, `"4K"`, and custom `"<width>x<height>"` |
 | `seed` | integer | null | Reproducibility |
 | `guidance_scale` | float | 5.5 | How closely to follow the edit prompt |
 | `watermark` | boolean | true | Add watermark |
 | `response_format` | string | `"url"` | `"url"` or `"b64_json"` |
+
+### Image Input Requirements (`image`)
+
+Input form:
+
+- URL: must be publicly accessible by BytePlus.
+- Base64: must use `data:image/<format>;base64,<payload>`.
+- `<format>` must be lowercase (for example `data:image/png;base64,...`).
+
+Supported formats:
+
+- Baseline support: `JPEG`, `PNG`.
+- Additional formats for `seedream-5-0-lite`, `seedream-4-5`, and `seedream-4-0`: `WEBP`, `BMP`, `TIFF`, `GIF`.
+
+Limits and constraints:
+
+| Constraint | `seedream-5-0-lite` / `seedream-4-5` / `seedream-4-0` | `seededit-3-0-i2i` / `seededit-3-0-t2i` |
+|-----------|----------------------------------------------------------|-------------------------------------------|
+| Aspect ratio (`width / height`) | `[1/16, 16]` | `[1/3, 3]` |
+| Width and height | `> 14 px` | `> 14 px` |
+| File size | `<= 10 MB` | `<= 10 MB` |
+| Pixel count per image | `<= 6000 x 6000 = 36,000,000` | `<= 6000 x 6000 = 36,000,000` |
+| Max reference images | Up to `14` | Up to `14` |
+
+Notes:
+
+- The pixel limit is on the product `width * height`, not on either dimension independently.
+- For multi-reference workflows, keep `input_image_count + output_image_count <= 15` when using related-sequence generation.
 
 ### I2I Request (curl)
 
@@ -199,7 +292,7 @@ print(response.data[0].url)
 
 ## Multi-Image Input (Seedream 4.0+)
 
-Seedream 4.0 and later natively support multiple reference images for subject-consistent generation.
+`seedream-5-0-lite`, `seedream-4-5`, and `seedream-4-0` natively support multiple reference images for subject-consistent generation.
 
 Pass multiple images as an array:
 
@@ -215,7 +308,7 @@ response = client.images.generate(
 )
 ```
 
-Up to **10 reference images** supported (Seedream 4.0+).
+Up to **14 reference images** supported.
 
 ---
 
@@ -225,6 +318,7 @@ Up to **10 reference images** supported (Seedream 4.0+).
 
 | Model ID | Version | Resolution | Notes |
 |----------|---------|-----------|-------|
+| `seedream-5-0-litenew` | Seedream 5.0 Lite New | 1K-2K | Supports sequence generation mode (`sequential_image_generation`) |
 | `seedream-5-0-t2i-250624` | Seedream 5.0 | 1K–4K | Latest; reasoning + editing |
 | `seedream-5-0-lite-t2i-250624` | Seedream 5.0 Lite | 1K–2K | Faster, lighter |
 | `seedream-4-5-250905` | Seedream 4.5 | 1K–4K | Improved from 4.0; stronger editing |
@@ -268,7 +362,9 @@ Total output pixel range: 1280×720 to 4096×4096.
 ## Notes
 
 - API is OpenAI-compatible — standard OpenAI Python/JS SDK works with `base_url` override
-- `sequential_image_generation: "enabled"` creates a thematically consistent image set (like a storyboard)
+- Keep prompts under 600 English words to reduce detail loss from overlong prompts
+- For `seedream-5-0-litenew`, `seedream-4-5`, and `seedream-4-0`, use `sequential_image_generation: "auto"` for related-image batches
+- Use `sequential_image_generation: "disabled"` for single-image generation
 - `size: "adaptive"` for SeedEdit preserves the input image's original aspect ratio and resolution
 - In PromptProxy, prefer `backend_params.size` and optional `backend_params.model_series` for deterministic Seedream size normalization
 - In PromptProxy scripts, use `BYTEPLUS_PROMPT`; avoid using shell `PROMPT` as an input variable

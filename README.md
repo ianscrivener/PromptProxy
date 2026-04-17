@@ -134,6 +134,8 @@ For Seedream text-to-image requests:
 - Allowed dimensions are loaded from `seedream-allowed-sizes.json` by `model_series` (`seedream50`, `seedream45`, `seedream40`).
 - If requested dimensions are not an exact allowed pair, PromptProxy snaps to the nearest allowed pair.
 - Orientation is preserved when snapping (portrait stays portrait, landscape stays landscape).
+- For related image batches on Seedream 5.0 Lite New / 4.5 / 4.0, set `sequential_image_generation` to `auto`.
+- For single-image output, set `sequential_image_generation` to `disabled` and use `num_images: 1`.
 
 Examples:
 
